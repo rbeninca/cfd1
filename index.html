@@ -293,6 +293,18 @@
     <section>
         <h2>5. Implementação em JavaScript</h2>
         <p>Abaixo apresenta-se o núcleo do algoritmo numérico implementado, que roda no navegador para gerar os resultados acima.</p>
+        <p>O código foi criado baseando-se no método TDMA para resolver sistemas tridiagonais, e usando com base o código em fortran disponibilizado pelo professor. Devido a natureza da web o arquivo de entrada foi adaptado e apresenado abaixo, similarmente a o arquivo utilizado em fortran como entrada.
+        </p>
+    <p>O código javascript esta organizado  da seguinte forma :
+        <ul>
+            <li>Funções Auxiliares: Funções matemáticas de apoio para cálculos analíticos e integração numérica.</li>
+            <li>Solução TDMA: Implementação do algoritmo Tri-Diagonal Matrix Algorithm para resolver o sistema linear.</li>
+            <li>Função de Interface: Função que lê os inputs da interface web e inicia a simulação.</li>
+            <li>Simulação Principal: Função que executa a simulação, monta a matriz, resolve o sistema e coleta resultados.</li>
+            <li>Geração de Arquivos: Funções para formatar e gerar os arquivos de entrada e saida.</li>
+            <li>Renderização de Resultados: Funções para atualizar a tabela e gráficos na interface web.</li>
+        </ul>
+    </p>
         <div class="code-block">// --- SOLVER TDMA (Tri-Diagonal Matrix Algorithm) ---
 function() {
     // Variáveis Globais de Gráfico para destruição correta
