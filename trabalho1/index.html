@@ -126,12 +126,48 @@
 
     <!-- 1. Introdução -->
     <section>
-        <h2>1. Definição do Problema</h2>
+        <h2>1. Definição do Problema e Organização do Trabalho</h2>
         <p>
             O presente trabalho tem como objetivo desenvolver uma solução numérica para o problema clássico de difusão de calor unidimensional em regime transiente. O cenário físico consiste em uma placa plana de espessura $L$.
         </p>
         <p> O trabalho foi desenvolido em JavaScript e versionado no github por isso  todo o código fonte e arquivos de entrada e saída estão disponíveis para consulta e reprodução dos resultados, no link :<a href="https://rbeninca.github.io/cfd1/" target="_blank" style="color:#1d4ed8">https://rbeninca.github.io/cfd1/</a> </p>
 
+        <!-- LISTA DE ITENS SOLICITADOS -->
+        <div class="bg-slate-50 p-4 border border-slate-200 rounded-md mb-6 mt-6">
+            <h3 class="font-bold text-slate-700 mb-3 text-sm uppercase border-b border-slate-200 pb-2">Itens Solicitados na Especificação</h3>
+            <ul class="list-none space-y-2 text-sm text-slate-700">
+                <li>
+                    <a href="#item-1" class="text-blue-600 hover:text-blue-800 hover:underline flex items-start gap-2">
+                        <span class="font-bold min-w-[60px]">Item 1:</span> 
+                        <span>Tabela com: número do volume, $X_P$, $T_P$ analítico, $T_P$ numérico e erro (para $t = t_F$).</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#item-2" class="text-blue-600 hover:text-blue-800 hover:underline flex items-start gap-2">
+                        <span class="font-bold min-w-[60px]">Item 2:</span> 
+                        <span>Gráfico de $T_P$ versus $X_P$ (soluções analítica e numérica em $t = t_F$, escala decimal).</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#item-3" class="text-blue-600 hover:text-blue-800 hover:underline flex items-start gap-2">
+                        <span class="font-bold min-w-[60px]">Item 3:</span> 
+                        <span>Tabela temporal: tempo, $\overline{T}$ analítico, $\overline{T}$ numérico e erro (de $t=0$ a $t=t_F$).</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#item-4" class="text-blue-600 hover:text-blue-800 hover:underline flex items-start gap-2">
+                        <span class="font-bold min-w-[60px]">Item 4:</span> 
+                        <span>Gráfico de $\overline{T}$ (escala log) versus $t$ (escala decimal), incluindo $t=0$.</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#item-5" class="text-blue-600 hover:text-blue-800 hover:underline flex items-start gap-2">
+                        <span class="font-bold min-w-[60px]">Item 5:</span> 
+                        <span>Listagem impressa do programa computacional implementado.</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
 
         <p>
             Conforme instrução do professor, para a modelagem matemática, partimos da equação diferencial parcial parabólica que governa o fenômeno, assumindo propriedades constantes e ausência de geração interna de calor, conforme estudamos no capítulo 4. Os detalhes do problema, incluindo a equação governante foram dados na Figura 1.
@@ -268,17 +304,17 @@
 
         <h3>4.1. Perfil de Temperatura ($t = t_F$)</h3>
         <p>A comparação entre a solução numérica e a analítica para o tempo final configurado.</p>
-        <div class="chart-wrapper">
+        <div class="chart-wrapper" id="item-2">
             <canvas id="profileChart"></canvas>
         </div>
         
         <h3>4.2. Histórico da Temperatura Média</h3>
         <p>Evolução da temperatura média da placa em escala logarítmica (eixo Y), demonstrando o decaimento exponencial.</p>
-        <div class="chart-wrapper">
+        <div class="chart-wrapper" id="item-4">
             <canvas id="historyChart"></canvas>
         </div>
 
-        <h3>4.3. Tabela de Erros ($t = t_F$)</h3>
+        <h3 id="item-1">4.3. Tabela de Erros ($t = t_F$)</h3>
         <div class="overflow-x-auto mt-6">
             <table>
                 <thead>
@@ -296,7 +332,7 @@
     </section>
 
     <!-- 5. Código Computacional -->
-    <section>
+    <section id="item-5">
         <h2>5. Implementação em JavaScript</h2>
         <p>Abaixo apresenta-se o núcleo do algoritmo numérico implementado, que roda no navegador para gerar os resultados acima.</p>
         <p>O código foi criado baseando-se no método TDMA para resolver sistemas tridiagonais, e usando com base o código em fortran disponibilizado pelo professor. Devido a natureza da web o arquivo de entrada foi adaptado e apresenado abaixo, similarmente a o arquivo utilizado em fortran como entrada.
