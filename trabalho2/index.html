@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Relatório: Condução 2D Permanente</title>
+    
+    <!-- Tailwind CSS (Framework de Estilo) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Chart.js (Biblioteca de Gráficos) -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- MathJax (Renderização de Equações Matemáticas) -->
+    <script>
+        MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']],
+                processEscapes: true
+            },
+            svg: { fontCache: 'global' }
+        };
+    </script>
+    <script type="text/javascript" id="MathJax-script" async
+        src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+    </script>
+
+    <style>
+        /* Importação de Fontes */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+        /* Estilos Globais */
+        body { font-family: 'Inter', sans-serif; background-color: #f1f5f9; color: #1e293b; }
+        .folha-papel { max-width: 210mm; margin: 40px auto; background: white; padding: 20mm 25mm; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); border-radius: 4px; }
+        
+        /* Tipografia */
+        h1 { font-size: 22pt; font-weight: 800; color: #0f172a; line-height: 1.2; margin-bottom: 10px; }
+        h2 { font-size: 16pt; font-weight: 700; color: #1e293b; border-bottom: 2px solid #e2e8f0; padding-bottom: 8px; margin-top: 30px; margin-bottom: 15px; }
+        h3 { font-size: 13pt; font-weight: 600; color: #334155; margin-top: 25px; margin-bottom: 10px; }
+        
+        p { margin-bottom: 12px; line-height: 1.6; text-align: justify; font-size: 11pt; }
+        ul { list-style-type: disc; margin-left: 20px; margin-bottom: 12px; font-size: 11pt; }
+        
+        /* Caixa de Equação Matemática */
+        .caixa-matematica { 
+            background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 6px; 
+            padding: 15px; margin: 20px 0; overflow-x: auto; text-align: center; 
+        }
+        
+        /* Bloco de Código */
+        .bloco-codigo {
+            font-family: 'JetBrains Mono', monospace; font-size: 9pt; 
+            background: #1e293b; color: #f8fafc; padding: 15px; 
+            border-radius: 6px; overflow-x: auto; margin: 15px 0;
+            line-height: 1.4; white-space: pre; 
+        }
+
+        /* Estilo para as imagens do caderno (manuscritos) */
+        .cartao-manuscrito {
+            background-color: #fff;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 10px;
+            margin: 25px 0;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        }
+        .imagem-manuscrito {
+            width: 100%;
+            height: auto;
+            border-radius: 4px;
+            border: 1px solid #cbd5e1;
+            display: block;
+        }
+        .legenda-imagem {
+            text-align: center; font-size: 0.9rem; color: #64748b; margin-top: 10px; font-style: italic;
+        }
+
+        /* Área dos Gráficos */
+        .container-grafico { position: relative; height: 350px; width: 100%; margin: 30px 0; border: 1px solid #e2e8f0; padding: 10px; border-radius: 6px; }
+        #canvasMapaCalor { width: 100%; height: 100%; display: block; }
+
+        /* Estilos de Inputs e Botões */
+        .grupo-input label { display: block; font-size: 0.85rem; font-weight: 600; color: #475569; margin-bottom: 4px; }
+        .grupo-input input { width: 100%; padding: 6px 10px; border: 1px solid #cbd5e1; border-radius: 4px; background: #f8fafc; }
+        .botao-executar { background-color: #2563eb; color: white; padding: 10px 20px; border-radius: 6px; font-weight: 600; cursor: pointer; }
+        .botao-executar:hover { background-color: #1d4ed8; }
+
+        /* Tabelas */
+        table { width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 9pt; }
+        th { background: #e2e8f0; color: #334155; font-weight: 700; padding: 8px; border: 1px solid #cbd5e1; }
+        td { padding: 6px; border: 1px solid #cbd5e1; text-align: center; vertical-align: middle; }
+        tr:nth-child(even) { background: #f8fafc; }
+        
+        .var-codigo { font-family: 'JetBrains Mono', monospace; color: #dc2626; background: #fee2e2; padding: 2px 4px; border-radius: 4px; font-size: 0.9em; }
+        
+        .caixa-resultado { background: #f0fdf4; border: 1px solid #86efac; padding: 15px; border-radius: 6px; margin: 10px 0; }
+        .titulo-resultado { font-weight: bold; color: #166534; font-size: 0.9rem; text-transform: uppercase; margin-bottom: 5px; }
+
+        @media print {
+            @page { size: A4; margin: 15mm; }
+            .folha-papel { box-shadow: none; margin: 0; padding: 0; max-width: 100%; }
+            .nao-imprimir { display: none; }
+            h1 { font-size: 18pt; }
+            h2 { font-size: 14pt; page-break-before: always; }
+            /* Imagens devem ocupar a largura útil da página e manter proporção */
+            .cartao-manuscrito { page-break-inside: avoid; page-break-after: always; }
+            .cartao-manuscrito:last-child { page-break-after: auto; }
+            .imagem-manuscrito { 
+                width: 100% !important; 
+                height: auto !important; 
+                /* Altura máxima calculada para caber imagem + legenda em uma página A4 com margem */
+                max-height: calc(297mm - 2 * 15mm - 50mm) !important; 
+                object-fit: contain; 
+            }
+            .legenda-imagem { font-size: 10pt; margin-top: 6mm; }
+            .container-grafico { height: 250px !important; page-break-inside: avoid; }
+            /* Evitar quebra entre cabeçalho e primeira seção */
+            .no-break { page-break-before: auto !important; }
+            .intro-pack { page-break-inside: avoid; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="folha-papel intro-pack">
+    
+    <!-- Cabeçalho -->
+    <div class="text-center mb-10">
+        <p class="text-sm font-bold text-slate-500 uppercase tracking-widest mb-2">Universidade Federal do Paraná</p>
+        <p class="text-xs text-slate-400 uppercase tracking-widest mb-4">Dinâmica de Fluidos Computacional I</p>
+        <h1>Solução Numérica da Difusão de Calor 2D</h1>
+        <p class="text-slate-600 font-medium mt-2">Relatório do 2º Trabalho Computacional - Regime Permanente</p>
+        <p class="text-slate-500 text-sm mt-1">Aluno: Romulo de Aguiar Beninca</p>
+    </div>
+
+    <!-- 1. Definição -->
+    <section>
+        <h2 class="no-break">1. Definição do Problema e Organização do Trabalho</h2>
+        <p>
+            O objetivo deste trabalho é desenvolver um código computacional para resolver a equação de difusão de calor bidimensional em regime permanente, utilizando o Método de Volumes Finitos (MVF). Conforme especificado na tarefa, o problema físico consiste em uma placa quadrada unitária onde a temperatura é prescrita na <strong>face superior</strong>, enquanto as demais faces são mantidas a $0^\circ C$.
+        </p>
+
+        <p>
+            Este relatório está organizado de maneira a apresentar a metodologia e os resultados de forma estruturada:
+        </p>
+        <ul>
+            <li><strong>Seção 2 (Desenvolvimento Matemático):</strong> Detalha a discretização da equação governante, o tratamento das condições de contorno via volumes fictícios e a dedução da solução analítica por separação de variáveis.</li>
+            <li><strong>Seção 3 (Correspondência Algébrica):</strong> Relaciona as equações matemáticas deduzidas com a lógica de programação implementada.</li>
+            <li><strong>Seção 4 (Resultados):</strong> Apresenta a simulação interativa, gráficos de convergência, perfis de temperatura comparativos, mapas de calor e cálculos de integrais (temperatura média e fluxos de calor).</li>
+            <li><strong>Seção 5 (Listagem do Programa):</strong> Disponibiliza o código fonte completo em JavaScript utilizado para a solução do problema.</li>
+        </ul>
+
+        <!-- LISTA DE ITENS SOLICITADOS (ADICIONADA) -->
+        <div class="bg-slate-50 p-4 border border-slate-200 rounded-md mb-6 mt-6">
+            <h3 class="font-bold text-slate-700 mb-3 text-sm uppercase border-b border-slate-200 pb-2">Itens Solicitados na Especificação</h3>
+            <ul class="list-none space-y-2 text-sm text-slate-700">
+                <li>
+                    <a href="#item-1" class="text-blue-600 hover:text-blue-800 hover:underline flex items-start gap-2">
+                        <span class="font-bold min-w-[60px]">Item 1:</span> 
+                        <span>Número de iterações e gráfico da variação de $T(1/2, 1/2)$ (escala log/decimal).</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#item-2" class="text-blue-600 hover:text-blue-800 hover:underline flex items-start gap-2">
+                        <span class="font-bold min-w-[60px]">Item 2:</span> 
+                        <span>Tabela com solução analítica, numérica e erro para o perfil vertical em $X=1/2$.</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#item-3" class="text-blue-600 hover:text-blue-800 hover:underline flex items-start gap-2">
+                        <span class="font-bold min-w-[60px]">Item 3:</span> 
+                        <span>Gráfico de $Y$ versus $T$ para $X=1/2$ (Perfil Vertical).</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#item-4" class="text-blue-600 hover:text-blue-800 hover:underline flex items-start gap-2">
+                        <span class="font-bold min-w-[60px]">Item 4:</span> 
+                        <span>Tabela com solução analítica, numérica e erro para o perfil horizontal em $Y=1/2$.</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#item-5" class="text-blue-600 hover:text-blue-800 hover:underline flex items-start gap-2">
+                        <span class="font-bold min-w-[60px]">Item 5:</span> 
+                        <span>Gráfico de $T$ versus $X$ para $Y=1/2$ (Perfil Horizontal).</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#item-6" class="text-blue-600 hover:text-blue-800 hover:underline flex items-start gap-2">
+                        <span class="font-bold min-w-[60px]">Item 6:</span> 
+                        <span>Temperatura média da placa (Analítica vs Numérica).</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#item-7" class="text-blue-600 hover:text-blue-800 hover:underline flex items-start gap-2">
+                        <span class="font-bold min-w-[60px]">Item 7:</span> 
+                        <span>Taxa de transferência de calor no contorno leste (Analítica vs Numérica).</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#item-8" class="text-blue-600 hover:text-blue-800 hover:underline flex items-start gap-2">
+                        <span class="font-bold min-w-[60px]">Item 8:</span> 
+                        <span>Taxa de transferência de calor no contorno norte (Analítica vs Numérica).</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#item-9" class="text-blue-600 hover:text-blue-800 hover:underline flex items-start gap-2">
+                        <span class="font-bold min-w-[60px]">Item 9:</span> 
+                        <span>Listagem impressa do programa computacional implementado.</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+        
+        <div class="cartao-manuscrito">
+            <img src="pg1.jpg" alt="Definição do Problema e Dados" class="imagem-manuscrito">
+            <p class="legenda-imagem">Figura 1: Definição dos parâmetros de malha ($N=13$) e equações iniciais.</p>
+        </div>
+
+    </section>
+
+    <!-- 2. Desenvolvimento e Dedução -->
+    <section>
+        <h2>2. Desenvolvimento Matemático (Dedução)</h2>
+        
+        <h3>2.1. Interpretação Física e Malha</h3>
+        <p>
+            A discretização espacial é realizada dividindo o domínio em volumes de controle. O comportamento esperado é um fluxo de calor partindo da região de maior temperatura (fonte senoidal) em direção às regiões mais frias ($0^\circ C$).
+        </p>
+
+        <div class="cartao-manuscrito">
+            <img src="pg2.jpg" alt="Esquema Gráfico da Placa" class="imagem-manuscrito">
+            <p class="legenda-imagem">Figura 2: Interpretação física e esquema da malha com nomenclatura dos pontos cardeais (P, N, S, E, W).</p>
+        </div>
+
+        <h3>2.2. Discretização para Volumes Internos</h3>
+        <p>
+            Para os volumes de controle internos, onde não há contato direto com as bordas prescritas, aplicamos o balanço de energia considerando condutividade constante e malha uniforme ($\Delta x = \Delta y$). Isso resulta na simplificação onde a soma dos coeficientes vizinhos é igual ao coeficiente central.
+        </p>
+        
+        <div class="cartao-manuscrito">
+            <img src="pg3.jpg" alt="Dedução Volumes Internos" class="imagem-manuscrito">
+            <p class="legenda-imagem">Figura 3: Dedução da equação para nós internos, resultando na média aritmética dos 4 vizinhos.</p>
+        </div>
+      
+
+        <h3>2.3. Tratamento da Condição de Contorno</h3>
+        <p>
+            Para tratar a condição de contorno prescrita (fonte de calor), utiliza-se a técnica de volumes fictícios 
+        </p>
+      
+
+        <div class="cartao-manuscrito">
+            <img src="pg4.jpg" alt="Dedução Borda" class="imagem-manuscrito">
+            <p class="legenda-imagem">Figura 4: Dedução do coeficiente modificado (divisor 5) utilizando volumes fictícios (Adaptação para o problema atual).</p>
+        </div>
+
+        <h3>2.4. Resumo do Algoritmo (Gauss-Seidel)</h3>
+        <p>
+            Para a solução do sistema de equações algébricas, optou-se pelo método iterativo de Gauss-Seidel. O algoritmo varre a malha atualizando a temperatura $T_P$ com base nos valores mais recentes dos vizinhos.
+        </p>
+        
+        <div class="cartao-manuscrito">
+            <img src="pg5.jpg" alt="Resumo Gauss Seidel" class="imagem-manuscrito">
+            <p class="legenda-imagem">Figura 5: Resumo das equações iterativas implementadas no código para varredura do domínio.</p>
+        </div>
+
+        <h3>2.5. Solução Analític</h3>
+        <p>
+            Para fins de validação dos resultados numéricos, deduziu-se a solução exata da equação nas condições de contorno apresentadas. O método utilizado foi a Separação de Variáveis, assumindo que $T(x,y) = X(x)Y(y)$.
+        </p>
+        <p>
+            O processo inicia-se dividindo a EDP em duas EDOs e aplicando as condições homogêneas nas bordas $x=0$, $x=1$ e $y=0$.
+        </p>
+
+        <div class="cartao-manuscrito">
+            <img src="pg6.jpg" alt="Solução Analítica - Início" class="imagem-manuscrito">
+            <p class="legenda-imagem">Figura 6: Início da dedução analítica: separação de variáveis e aplicação das condições de contorno homogêneas.</p>
+        </div>
+
+        <p>
+            Em seguida, determina-se os autovalores $\lambda_n$ e as autofunções associadas para $X(x)$ e $Y(y)$, resultando em uma solução na forma de série infinita.
+        </p>
+
+        <div class="cartao-manuscrito">
+            <img src="pg7.jpg" alt="Solução Analítica - Autovalores" class="imagem-manuscrito">
+            <p class="legenda-imagem">Figura 7: Determinação dos autovalores e da solução geral em série.</p>
+        </div>
+
+        <p>
+            Por fim, aplica-se a condição de contorno não-homogênea na face superior ($T(x,1) = \text{sen}(\pi x)$) para encontrar os coeficientes da série. Devido à natureza da função seno, a série colapsa em um único termo (modo fundamental $n=1$).
+        </p>
+
+        <div class="cartao-manuscrito">
+            <img src="pg8.jpg" alt="Solução Analítica - Final" class="imagem-manuscrito">
+            <p class="legenda-imagem">Figura 8: Aplicação da condição da face superior e obtenção da equação final fechada.</p>
+        </div>
+
+       
+       
+
+    </section>
+
+    <!-- 3. Correspondência Algébrica vs. Implementação -->
+    <section>
+        <h2>3. Correspondência Algébrica vs. Implementação</h2>
+        <p>
+            A implementação utiliza JavaScript puro. A tabela abaixo relaciona as equações deduzidas com a lógica de código utilizada no loop iterativo:
+        </p>
+        <div class="overflow-x-auto">
+            <table>
+                <thead>
+                    <tr>
+                        <th width="30%">Tipo de Volume</th>
+                        <th width="35%">Expressão Algébrica (Dedução)</th>
+                        <th width="35%">Lógica no Código (JS)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Interno</strong><br>(Longe da borda superior)</td>
+                        <td>$$ T_P^{(k+1)} = \frac{T_E^{(k)} + T_W^{(k+1)} + T_N^{(k)} + T_S^{(k+1)}}{4} $$</td>
+                        <td><div class="var-codigo">T[i][j] = (T[i+1][j] + T[i-1][j] + T[i][j+1] + T[i][j-1]) / 4.0</div></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Borda Superior</strong><br>($j = Ny-1$)</td>
+                        <td>$$ T_P = \frac{T_E + T_W + T_S + 2\text{sen}(\pi x)}{5} $$</td>
+                        <td>
+                            <div class="var-codigo">fonte = 2.0 * Math.sin(Math.PI * x)</div>
+                            <div class="var-codigo">T[i][j] = (T[i+1][j] + T[i-1][j] + T[i][j-1] + fonte) / 5.0</div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- 4. Implementação e Resultados Completos -->
+    <section>
+        <h2>4. Resultados da Simulação</h2>
+        
+        <!-- Painel de Controle -->
+        <div class="bg-slate-50 border border-slate-200 rounded-lg p-6 mb-8 nao-imprimir">
+            <h3 class="text-lg font-bold text-slate-700 border-b border-slate-200 pb-2 mb-4">Painel de Controle</h3>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div class="grupo-input">
+                    <label>Nx (Volumes X)</label>
+                    <input type="number" id="entrada_Nx" value="13" min="3">
+                </div>
+                <div class="grupo-input">
+                    <label>Ny (Volumes Y)</label>
+                    <input type="number" id="entrada_Ny" value="13" min="3">
+                </div>
+                <div class="grupo-input">
+                    <label>Máx. Iterações</label>
+                    <input type="number" id="entrada_MaxIter" value="3000">
+                </div>
+                <div class="grupo-input">
+                    <label>Tolerância (Máquina)</label>
+                    <input type="text" id="entrada_Tol" value="1e-12">
+                </div>
+            </div>
+            <div class="mt-4 flex justify-end">
+                <button class="botao-executar" onclick="executarSimulacaoPeloUI()">
+                    Calcular Solução Completa
+                </button>
+            </div>
+        </div>
+
+        <!-- Heatmap -->
+        <h3>4.1. Campo de Temperatura (Visualização)</h3>
+        <p>Distribuição de temperatura na placa. O gradiente parte da face superior (quente) para as demais faces (frias).</p>
+        <div class="container-grafico" style="height: 400px; display: flex; justify-content: center; align-items: center; background: #fff;">
+            <canvas id="canvasMapaCalor"></canvas>
+        </div>
+        
+        <!-- Item 1: Iterações e Erro + T_central -->
+        <h3 id="item-1">4.2. Convergência e Monitoramento (Item 1 do trabalho)</h3>
+        <p>Variação da temperatura no ponto central $T(0.5, 0.5)$ e do erro máximo a cada iteração.</p>
+        <div class="grid grid-cols-1 md:grid-cols-1 gap-4">
+            <div class="container-grafico">
+                <canvas id="graficoConvergencia"></canvas>
+            </div>
+            <div class="container-grafico">
+                <canvas id="graficoPontoCentral"></canvas>
+            </div>
+        </div>
+
+        <!-- Itens 4 e 5: Perfil Horizontal -->
+        <h3 id="item-4-5">4.3. Perfil Horizontal em $Y=0.5$ (Itens 4 e 5)</h3>
+        <span id="item-4"></span> <span id="item-5"></span> <!-- Âncoras auxiliares -->
+        <p>Comparação entre solução numérica e analítica ao longo da linha central horizontal.</p>
+        <div class="container-grafico">
+            <canvas id="graficoPerfilX"></canvas>
+        </div>
+        <div id="saida-tabela-x" class="bloco-codigo" style="max-height: 200px; overflow-y: auto;"></div>
+
+        <!-- Itens 2 e 3: Perfil Vertical -->
+        <h3 id="item-2-3">4.4. Perfil Vertical em $X=0.5$ (Itens 2 e 3)</h3>
+        <span id="item-2"></span> <span id="item-3"></span> <!-- Âncoras auxiliares -->
+        <p>Comparação entre solução numérica e analítica ao longo da linha central vertical.</p>
+        <div class="container-grafico">
+            <canvas id="graficoPerfilY"></canvas>
+        </div>
+        <div id="saida-tabela-y" class="bloco-codigo" style="max-height: 800px; overflow-y: auto;"></div>
+
+        <!-- Itens 6, 7 e 8: Integrais -->
+        <h3>4.5. Médias e Taxas de Transferência (Itens 6, 7 e 8)</h3>
+        <div class="grid grid-cols-1 gap-4">
+            <div class="caixa-resultado" id="item-6">
+                <div class="titulo-resultado">Item 6: Temperatura Média da Placa</div>
+                <div id="res-media">Calculando...</div>
+            </div>
+            <div class="caixa-resultado" id="item-7">
+                <div class="titulo-resultado">Item 7: Taxa de Calor no Contorno Leste (Resfriado)</div>
+                <div id="res-fluxo-leste">Calculando...</div>
+            </div>
+            <div class="caixa-resultado" id="item-8">
+                <div class="titulo-resultado">Item 8: Taxa de Calor no Contorno Norte (Fonte)</div>
+                <div id="res-fluxo-norte">Calculando...</div>
+            </div>
+        </div>
+
+    </section>
+
+    <!-- 5. Código Fonte -->
+    <section style="page-break-before: always;">
+        <h2 id="item-9">5. Listagem do Programa (Item 9)</h2>
+        <p>Código JavaScript completo utilizado para a simulação, traduzido e comentado.</p>
+        <div class="bloco-codigo" id="exibicao-codigo-fonte">// O código será inserido aqui dinamicamente</div>
+    </section>
+
+</div>
+
+<script id="script-simulacao">
+(function() {
+    // Variáveis globais para os gráficos (para poder destruir/recriar)
+    let graficoConv = null, graficoCentro = null, graficoProfX = null, graficoProfY = null;
+
+    // --- SOLUÇÃO ANALÍTICA (FONTE NO TOPO) ---
+    // T(x,y) = sin(pi*x) * sinh(pi*y) / sinh(pi)
+    function solucaoAnalitica(x, y) {
+        return (Math.sin(Math.PI * x) * Math.sinh(Math.PI * y)) / Math.sinh(Math.PI);
+    }
+
+    // Média Analítica: Integral dupla de T(x,y) dx dy
+    // Integral sin(pi*x) de 0 a 1 = 2/pi
+    // Integral sinh(pi*y) de 0 a 1 = (cosh(pi)-1)/pi
+    // Constante 1/sinh(pi)
+    // Resultado: (2 * (cosh(pi) - 1)) / (pi^2 * sinh(pi))
+    function mediaAnalitica() {
+        return (2.0 * (Math.cosh(Math.PI) - 1.0)) / (Math.pow(Math.PI, 2) * Math.sinh(Math.PI));
+    }
+
+    // Fluxo Leste (x=1): Integral de -k * dT/dx dy de 0 a 1
+    // dT/dx = pi * cos(pi*x) * sinh(pi*y) / sinh(pi)
+    // Em x=1: cos(pi) = -1. Logo dT/dx = -pi * sinh(pi*y)/sinh(pi)
+    // Fluxo q'' = -k * (-pi * ...) = k * pi * sinh(pi*y)/sinh(pi)
+    // Integral dy de sinh(pi*y) é (cosh(pi)-1)/pi
+    // Integral Total = k * (cosh(pi)-1)/sinh(pi) = k * tanh(pi/2)
+    function fluxoLesteAnalitico(k=1.0) {
+        return k * Math.tanh(Math.PI / 2.0);
+    }
+
+    // Fluxo Norte (y=1): Integral de -k * dT/dy dx de 0 a 1
+    // dT/dy = pi * sin(pi*x) * cosh(pi*y) / sinh(pi)
+    // Em y=1: cosh(pi). Logo dT/dy = pi * sin(pi*x) * coth(pi)
+    // Fluxo q'' = -k * pi * sin(pi*x) * coth(pi)
+    // Integral dx de sin(pi*x) é 2/pi
+    // Integral Total = -k * 2 * coth(pi)
+    function fluxoNorteAnalitico(k=1.0) {
+        return -k * 2.0 * (1.0 / Math.tanh(Math.PI));
+    }
+
+    // Função Principal chamada pelo botão na UI
+    window.executarSimulacaoPeloUI = function() {
+        // Obter valores dos inputs do HTML
+        const Nx = parseInt(document.getElementById('entrada_Nx').value);
+        const Ny = parseInt(document.getElementById('entrada_Ny').value);
+        const maxIter = parseInt(document.getElementById('entrada_MaxIter').value);
+        const tol = parseFloat(document.getElementById('entrada_Tol').value);
+
+        // 1. Executar o Solver Numérico
+        const resultado = executarSolver(Nx, Ny, maxIter, tol);
+        
+        // 2. Gerar Gráficos de Convergência (Item 1 do PDF)
+        plotarConvergencia(resultado.histErro);
+        plotarHistoricoCentro(resultado.histCentro);
+
+        // 3. Gerar Perfis e Tabelas (Itens 2, 3, 4, 5 do PDF)
+        gerarPerfilHorizontal(resultado.T, Nx, Ny);
+        gerarPerfilVertical(resultado.T, Nx, Ny);
+
+        // 4. Desenhar Mapa de Calor (Heatmap)
+        desenharMapaCalor(resultado.T, Nx, Ny);
+
+        // 5. Calcular Integrais e Fluxos (Itens 6, 7, 8 do PDF)
+        calcularIntegrais(resultado.T, Nx, Ny);
+
+        // 6. Exibir o próprio código fonte na página (Item 9 do PDF)
+        document.getElementById('exibicao-codigo-fonte').textContent = document.getElementById('script-simulacao').textContent;
+    }
+
+    // Solver Gauss-Seidel
+    function executarSolver(Nx, Ny, maxIter, tol) {
+        // Inicializar matriz T com zeros
+        let T = Array(Nx).fill(0).map(()=>Array(Ny).fill(0.0));
+        let erroMax = 1.0, iteracao = 0;
+        let histErro = [], histCentro = [];
+        
+        let meioX = Math.floor(Nx/2);
+        let meioY = Math.floor(Ny/2);
+
+        // Loop Iterativo
+        while(iteracao < maxIter && erroMax > tol) {
+            erroMax = 0.0;
+            // Varredura da malha
+            for(let i=0; i<Nx; i++) {
+                for(let j=0; j<Ny; j++) {
+                    let T_antigo = T[i][j];
+                    
+                    // Vizinhos (Se fora do domínio, T=0, exceto topo que é tratado na eq)
+                    let Tw = (i > 0) ? T[i-1][j] : 0.0;     // Oeste
+                    let Te = (i < Nx-1) ? T[i+1][j] : 0.0;  // Leste
+                    let Ts = (j > 0) ? T[i][j-1] : 0.0;     // Sul
+                    let Tn = (j < Ny-1) ? T[i][j+1] : 0.0;  // Norte
+                    
+                    let T_novo = 0;
+                    
+                    // Condição de Contorno no Topo (j = Ny-1)
+                    // Fonte: T(x,1) = sin(pi*x)
+                    if(j === Ny-1) {
+                        let x = (i + 0.5) / Nx;
+                        let fonte = 2.0 * Math.sin(Math.PI * x);
+                        // Eq. deduzida: (Tw + Te + Ts + fonte) / 5
+                        // Nota: Tn é o vizinho fictício incorporado na fonte
+                        T_novo = (Tw + Te + Ts + fonte) / 5.0;
+                    } else {
+                        // Volumes Internos
+                        // Eq. deduzida: (Tw + Te + Tn + Ts) / 4
+                        T_novo = (Tw + Te + Tn + Ts) / 4.0;
+                    }
+                    
+                    T[i][j] = T_novo; // Atualização Gauss-Seidel (imediata)
+                    
+                    let erroLocal = Math.abs(T_novo - T_antigo);
+                    if(erroLocal > erroMax) erroMax = erroLocal;
+                }
+            }
+            iteracao++;
+            
+            // Salvar dados para os gráficos
+            // Salva apenas a cada 10 iterações ou no final para performance
+            if(iteracao < 50 || iteracao % 10 === 0 || erroMax <= tol) {
+                histErro.push({x: iteracao, y: erroMax});
+                histCentro.push({x: iteracao, y: T[meioX][meioY]});
+            }
+        }
+        return {T, histErro, histCentro, iteracao};
+    }
+
+    // Cálculo das integrais (Média e Fluxos)
+    function calcularIntegrais(T, Nx, Ny) {
+        let dx = 1.0/Nx, dy = 1.0/Ny;
+        let k = 1.0; // Condutividade térmica
+
+        // --- Item 6: Temperatura Média (Regra do Retângulo) ---
+        let somaT = 0;
+        for(let i=0; i<Nx; i++) {
+            for(let j=0; j<Ny; j++) {
+                somaT += T[i][j];
+            }
+        }
+        // Área total = 1.0 * 1.0 = 1.0
+        let mediaNum = (somaT * dx * dy) / 1.0; 
+        let mediaAna = mediaAnalitica();
+        let erroMedia = Math.abs(mediaNum - mediaAna);
+
+        document.getElementById('res-media').innerHTML = 
+            `Numérica: <b>${mediaNum.toFixed(6)}</b> °C | Analítica: <b>${mediaAna.toFixed(6)}</b> °C | Erro: <span style="color:red">${erroMedia.toExponential(2)}</span>`;
+
+        // --- Item 7: Fluxo Leste (x=1) ---
+        // Fronteira fria (T=0).
+        // q'' = -k dT/dx. Usando UDS (Two-point backward): dT/dx ~ (T_parede - T_P) / (dx/2)
+        // T_parede = 0. T_P = T[Nx-1][j]. Distância = dx/2.
+        let fluxoLeste = 0;
+        for(let j=0; j<Ny; j++) {
+            let T_parede = 0.0;
+            let T_P = T[Nx-1][j];
+            let gradiente = (T_parede - T_P) / (dx/2.0);
+            fluxoLeste += (-k * gradiente) * dy; // Integral de q'' dy
+        }
+        let flAna = fluxoLesteAnalitico();
+        let errFL = Math.abs(fluxoLeste - flAna);
+        
+        document.getElementById('res-fluxo-leste').innerHTML = 
+            `Numérica: <b>${fluxoLeste.toFixed(6)}</b> W/m | Analítica: <b>${flAna.toFixed(6)}</b> W/m | Erro: <span style="color:red">${errFL.toExponential(2)}</span>`;
+
+        // --- Item 8: Fluxo Norte (y=1) ---
+        // Fronteira quente (T=sin(pi*x)).
+        // q'' = -k dT/dy. Usando UDS: dT/dy ~ (T_parede - T_P) / (dy/2)
+        // T_parede = sin(pi*x). T_P = T[i][Ny-1].
+        let fluxoNorte = 0;
+        for(let i=0; i<Nx; i++) {
+            let x = (i + 0.5) * dx;
+            let T_parede = Math.sin(Math.PI * x);
+            let T_P = T[i][Ny-1];
+            let gradiente = (T_parede - T_P) / (dy/2.0);
+            fluxoNorte += (-k * gradiente) * dx; // Integral de q'' dx
+        }
+        let fnAna = fluxoNorteAnalitico();
+        let errFN = Math.abs(fluxoNorte - fnAna);
+
+        document.getElementById('res-fluxo-norte').innerHTML = 
+            `Numérica: <b>${fluxoNorte.toFixed(6)}</b> W/m | Analítica: <b>${fnAna.toFixed(6)}</b> W/m | Erro: <span style="color:red">${errFN.toExponential(2)}</span>`;
+    }
+
+    // Gerar Perfil Horizontal (T vs X)
+    function gerarPerfilHorizontal(T, Nx, Ny) {
+        let meioY = Math.floor(Ny/2);
+        let coordY = (meioY + 0.5) / Ny;
+        let htmlTabela = "<table style='width:100%'><thead><tr><th>i</th><th>x</th><th>Numérica</th><th>Analítica</th><th>Erro</th></tr></thead><tbody>";
+        let dadosNum = [], dadosAna = [];
+
+        // Adicionar contorno esquerdo (x=0, T=0)
+        htmlTabela += `<tr><td>BC</td><td>0.0000</td><td>0.000000</td><td>0.000000</td><td>0.00e+0</td></tr>`;
+        dadosNum.push({x:0, y:0}); dadosAna.push({x:0, y:0});
+
+        for(let i=0; i<Nx; i++) {
+            let x = (i + 0.5) / Nx;
+            let valNum = T[i][meioY];
+            let valAna = solucaoAnalitica(x, coordY);
+            dadosNum.push({x:x, y:valNum}); dadosAna.push({x:x, y:valAna});
+            htmlTabela += `<tr><td>${i+1}</td><td>${x.toFixed(4)}</td><td>${valNum.toFixed(6)}</td><td>${valAna.toFixed(6)}</td><td>${Math.abs(valNum-valAna).toExponential(2)}</td></tr>`;
+        }
+        
+        // Adicionar contorno direito (x=1, T=0)
+        htmlTabela += `<tr><td>BC</td><td>1.0000</td><td>0.000000</td><td>0.000000</td><td>0.00e+0</td></tr></tbody></table>`;
+        dadosNum.push({x:1, y:0}); dadosAna.push({x:1, y:0});
+        
+        document.getElementById('saida-tabela-x').innerHTML = htmlTabela;
+
+        const ctx = document.getElementById('graficoPerfilX').getContext('2d');
+        if(graficoProfX) graficoProfX.destroy();
+        graficoProfX = new Chart(ctx, {
+            type: 'line',
+            data: { datasets: [
+                { label:'Numérica', data:dadosNum, borderColor:'#2563eb', pointRadius:3 },
+                { label:'Analítica', data:dadosAna, borderColor:'#059669', borderDash:[5,5], pointRadius:0 }
+            ]},
+            options: { responsive:true, maintainAspectRatio:false, scales:{x:{type:'linear', title:{display:true, text:'Posição X'}}} }
+        });
+    }
+
+    // Gerar Perfil Vertical (T vs Y)
+    function gerarPerfilVertical(T, Nx, Ny) {
+        let meioX = Math.floor(Nx/2);
+        let coordX = (meioX + 0.5) / Nx;
+        let htmlTabela = "<table style='width:100%'><thead><tr><th>j</th><th>y</th><th>Numérica</th><th>Analítica</th><th>Erro</th></tr></thead><tbody>";
+        let dadosNum = [], dadosAna = [];
+
+        // Contorno Inferior (y=0, T=0)
+        dadosNum.push({x:0, y:0}); dadosAna.push({x:0, y:0});
+        htmlTabela += `<tr><td>BC</td><td>0.0000</td><td>0.000000</td><td>0.000000</td><td>0.00e+0</td></tr>`;
+
+        for(let j=0; j<Ny; j++) {
+            let y = (j + 0.5) / Ny;
+            let valNum = T[meioX][j];
+            let valAna = solucaoAnalitica(coordX, y);
+            dadosNum.push({x:y, y:valNum}); dadosAna.push({x:y, y:valAna});
+            htmlTabela += `<tr><td>${j+1}</td><td>${y.toFixed(4)}</td><td>${valNum.toFixed(6)}</td><td>${valAna.toFixed(6)}</td><td>${Math.abs(valNum-valAna).toExponential(2)}</td></tr>`;
+        }
+
+        // Contorno Superior (y=1, T=sin(pi*x))
+        let tParede = Math.sin(Math.PI * coordX);
+        dadosNum.push({x:1, y:tParede}); dadosAna.push({x:1, y:tParede});
+        htmlTabela += `<tr><td>BC</td><td>1.0000</td><td>${tParede.toFixed(6)}</td><td>${tParede.toFixed(6)}</td><td>0.00e+0</td></tr></tbody></table>`;
+
+        document.getElementById('saida-tabela-y').innerHTML = htmlTabela;
+
+        const ctx = document.getElementById('graficoPerfilY').getContext('2d');
+        if(graficoProfY) graficoProfY.destroy();
+        graficoProfY = new Chart(ctx, {
+            type: 'line',
+            data: { datasets: [
+                { label:'Numérica', data:dadosNum, borderColor:'#9333ea', pointRadius:3 },
+                { label:'Analítica', data:dadosAna, borderColor:'#db2777', borderDash:[5,5], pointRadius:0 }
+            ]},
+            options: { responsive:true, maintainAspectRatio:false, scales:{x:{type:'linear', title:{display:true, text:'Posição Y'}}} }
+        });
+    }
+
+    // Gráfico de Convergência do Erro
+    function plotarConvergencia(dados) {
+        const ctx = document.getElementById('graficoConvergencia').getContext('2d');
+        if(graficoConv) graficoConv.destroy();
+        graficoConv = new Chart(ctx, {
+            type: 'line',
+            data: { datasets: [{ label: 'Erro Máximo (Log)', data: dados, borderColor: '#dc2626', borderWidth: 2, pointRadius: 0 }] },
+            options: { responsive:true, maintainAspectRatio:false, scales:{ x:{type:'linear', title:{display:true,text:'Iterações'}}, y:{type:'logarithmic'} } }
+        });
+    }
+
+    // Gráfico do Histórico do Ponto Central
+    function plotarHistoricoCentro(dados) {
+        const ctx = document.getElementById('graficoPontoCentral').getContext('2d');
+        if(graficoCentro) graficoCentro.destroy();
+        graficoCentro = new Chart(ctx, {
+            type: 'line',
+            data: { datasets: [{ label: 'Temp. Central T(0.5,0.5)', data: dados, borderColor: '#0891b2', borderWidth: 2, pointRadius: 0 }] },
+            options: { responsive:true, maintainAspectRatio:false, scales:{ x:{type:'linear', title:{display:true,text:'Iterações'}}, y:{title:{display:true, text:'Temperatura'}} } }
+        });
+    }
+
+    // Mapa de Calor (Heatmap)
+    function desenharMapaCalor(T, Nx, Ny) {
+        const c = document.getElementById('canvasMapaCalor');
+        const ctx = c.getContext('2d');
+        const w = c.parentElement.clientWidth;
+        const h = c.parentElement.clientHeight;
+        c.width = w; c.height = h;
+        const cw = w/Nx, ch = h/Ny;
+        
+        for(let i=0; i<Nx; i++) {
+            for(let j=0; j<Ny; j++) {
+                let val = T[i][j];
+                // Escala de cor: Azul (frio) -> Vermelho (quente)
+                // O máximo analítico é 1.0 (seno de pi/2 * sinh/sinh)
+                let matiz = (1.0 - val) * 240; 
+                ctx.fillStyle = `hsl(${matiz}, 100%, 50%)`;
+                // Inverter Y para desenhar de baixo para cima
+                ctx.fillRect(i*cw, h - (j+1)*ch, cw+1, ch+1);
+            }
+        }
+        // Borda
+        ctx.strokeStyle = "#333"; ctx.lineWidth=2; ctx.strokeRect(0,0,w,h);
+        
+        // Legenda Simples
+        ctx.fillStyle = "black"; ctx.font = "12px sans-serif";
+        ctx.fillText("Topo (Quente) ≈ 1.0", 10, 20);
+        ctx.fillText("Base (Fria) = 0.0", 10, h - 10);
+    }
+
+    // Executar automaticamente ao carregar a página
+    setTimeout(window.executarSimulacaoPeloUI, 500);
+})();
+</script>
+</body>
+</html>
