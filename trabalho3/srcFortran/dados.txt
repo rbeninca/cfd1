@@ -1,0 +1,4 @@
+    13 ......... N:      número de volumes de controle (reais + dois fictícios)
+    10.0d0 ..... Re:     número de Reynolds [adim.]
+    1.0d+0 .... beta:   coeficiente do termo difusivo (funções de interpolação):  0.0d0 = UDS / 1.0d0 = CDS
+   35 ......... itmax:  número máximo de iterações

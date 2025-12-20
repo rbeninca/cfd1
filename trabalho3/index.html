@@ -1,0 +1,910 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Relatório Computacional 3: Equação de Burgers</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script>
+        MathJax = { tex: { inlineMath: [['$', '$']] }, svg: { fontCache: 'global' } };
+    </script>
+    <script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" rel="stylesheet" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-fortran.min.js"></script>
+
+    <style>
+        /* Importação de Fontes */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+        /* Estilos Globais */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f1f5f9;
+            color: #1e293b;
+        }
+
+        .folha-papel {
+            max-width: 210mm;
+            margin: 40px auto;
+            background: white;
+            padding: 20mm 25mm;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            border-radius: 4px;
+        }
+
+        /* Tipografia */
+        h1 {
+            font-size: 22pt;
+            font-weight: 800;
+            color: #0f172a;
+            line-height: 1.2;
+            margin-bottom: 10px;
+        }
+
+        h2 {
+            font-size: 16pt;
+            font-weight: 700;
+            color: #5c95f0;
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 8px;
+            margin-top: 30px;
+            margin-bottom: 15px;
+        }
+
+        h3 {
+            font-size: 13pt;
+            font-weight: 600;
+            color: #334155;
+            margin-top: 25px;
+            margin-bottom: 10px;
+        }
+
+        p {
+            margin-bottom: 12px;
+            line-height: 1.6;
+            text-align: justify;
+            font-size: 11pt;
+        }
+
+        ul {
+            list-style-type: disc;
+            margin-left: 20px;
+            margin-bottom: 12px;
+            font-size: 11pt;
+        }
+
+        /* Bloco de Código */
+        .bloco-codigo {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 9pt;
+            background: #1e293b;
+            color: #f8fafc;
+            padding: 15px;
+            border-radius: 6px;
+            overflow-x: auto;
+            margin: 15px 0;
+            line-height: 1.4;
+            white-space: pre;
+        }
+
+        /* Diagramas e Paineis */
+        .caixa-diagrama {
+            background: #f8fafc;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            padding: 15px;
+            margin: 20px 0;
+        }
+
+        .painel-controle {
+            background: #f8fafc;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        /* Área dos Gráficos */
+        .container-grafico {
+            position: relative;
+            height: 350px;
+            width: 100%;
+            margin: 30px 0;
+            border: 1px solid #e2e8f0;
+            padding: 10px;
+            border-radius: 6px;
+            background: #fff;
+        }
+
+        /* Estilos de Inputs e Botões */
+        .grupo-input label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #475569;
+            margin-bottom: 4px;
+        }
+
+        .grupo-input input {
+            width: 100%;
+            padding: 6px 10px;
+            border: 1px solid #cbd5e1;
+            border-radius: 4px;
+            background: #fff;
+        }
+
+        .botao-executar {
+            background-color: #2563eb;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .botao-executar:hover {
+            background-color: #1d4ed8;
+        }
+
+        .botao-secundario {
+            background-color: white;
+            color: #1e293b;
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            border: 1px solid #cbd5e1;
+            transition: background 0.2s;
+        }
+
+        .botao-secundario:hover {
+            background-color: #f1f5f9;
+        }
+
+        .botao-terciario {
+            background-color: #e2e8f0;
+            color: #1e293b;
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .botao-terciario:hover {
+            background-color: #cbd5e1;
+        }
+
+        /* Tabelas */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            font-size: 9pt;
+        }
+
+        th {
+            background: #e2e8f0;
+            color: #334155;
+            font-weight: 700;
+            padding: 8px;
+            border: 1px solid #cbd5e1;
+        }
+
+        td {
+            padding: 6px;
+            border: 1px solid #cbd5e1;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        tr:nth-child(even) {
+            background: #f8fafc;
+        }
+
+        .caixa-resultado {
+            background: #f0fdf4;
+            border: 1px solid #86efac;
+            padding: 15px;
+            border-radius: 6px;
+            margin: 10px 0;
+        }
+
+        .titulo-resultado {
+            font-weight: bold;
+            color: #166534;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            margin-bottom: 5px;
+        }
+
+        @media print {
+            @page {
+                size: A4;
+                margin: 15mm;
+            }
+
+            body {
+                background-color: white;
+            }
+
+            .folha-papel {
+                box-shadow: none;
+                margin: 0;
+                padding: 0 !important;
+                max-width: 100%;
+                width: 100%;
+            }
+
+            .painel-controle,
+            .botao-executar,
+            .botao-secundario,
+            .botao-terciario,
+            button {
+                display: none !important;
+            }
+
+            h1 {
+                font-size: 18pt;
+            }
+
+            h2 {
+                font-size: 14pt;
+                page-break-before: always;
+                margin-top: 0;
+            }
+
+            .container-grafico {
+                height: 300px !important;
+                page-break-inside: avoid;
+                border: 1px solid #ccc;
+            }
+
+            table {
+                font-size: 8pt;
+                page-break-inside: auto;
+            }
+
+            tr {
+                page-break-inside: avoid;
+                page-break-after: auto;
+            }
+
+            .bloco-codigo {
+                font-size: 7pt;
+                white-space: pre-wrap;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="folha-papel">
+
+        <div class="text-center mb-10">
+            <p class="text-center text-sm font-bold text-slate-500 uppercase tracking-widest mb-2">Universidade Federal
+                do Paraná</p>
+            <p class="text-center text-xs text-slate-400 uppercase tracking-widest mb-4">Dinâmica de Fluidos
+                Computacional I</p>
+            <h1>3º Trabalho Computacional</h1>
+            <p class="font-semibold text-lg">Solução Numérica do Escoamento Unidimensional: Equação de Convecção-Difusão
+            </p>
+            <p class="text-slate-500 text-sm mt-1">Aluno: Romulo de Aguiar Beninca</p>
+        </div>
+
+        <section>
+            <h2 class="no-break border-t-0 pt-0 mt-0">1. Definição do Problema e Organização</h2>
+            <p>
+                Este relatório foi elaborado em HTML, utilizando dados gerados por um código Fortran e gráficos produzidos com Gnuplot.
+                O objetivo principal foi desenvolver um código computacional para resolver a equação de
+                convecção-difusão linear unidimensional em regime permanente, utilizando o Método de Volumes Finitos
+                (MVF). O problema físico consiste em um escoamento unidimensional com velocidade prescrita nos
+                contornos. Foram realizadas poucas modificações no código original fornecido pelo professor, focando principalmente na adaptação para a geração dos dados e resultados apresentados.
+            </p>
+            <p>
+                O relatório apresenta a metodologia, os parâmetros de execução interativos, os resultados gráficos
+                (convergência e perfil de velocidade), tabelas comparativas e a análise de erro.
+            </p>
+
+            <h3>Bibliotecas JavaScript Utilizadas:</h3>
+            <ul class="list-disc list-inside text-sm text-gray-700 mb-3">
+                <li><strong>Tailwind CSS (via CDN):</strong> Utilizado para estilização rápida e responsiva do layout do relatório.</li>
+            
+                <li><strong>MathJax:</strong> Essencial para a renderização de equações matemáticas em formato LaTeX diretamente no navegador.</li>
+                <li><strong>Prism.js:</strong> Usado para o destaque de sintaxe do código-fonte Fortran e JavaScript, proporcionando uma leitura mais clara e organizada.</li>
+            </ul>
+
+            <div class="bg-slate-50 p-4 border border-slate-200 rounded-md mb-6 mt-6">
+                <h3 class="font-bold text-slate-700 mb-3 text-sm uppercase border-b border-slate-200 pb-2">Itens
+                    Solicitados</h3>
+                <ul class="list-none space-y-2 text-sm text-slate-700">
+                    <li>
+                        <a href="#item-1"
+                            class="text-blue-600 hover:text-blue-800 hover:underline flex items-start gap-2">
+                            <span class="font-bold min-w-[60px]">Item 1:</span>
+                            <span>Número de iterações que foram necessárias para atingir o erro de arredondamento de
+                                máquina. E gráfico da
+                                variação de u(1/2) em cada iteração (em escala logarítmica) versus número da iteração
+                                (em escala decimal).</span>
+                            <img src="./grafico1.png"
+                                alt="Foram necessários 28 iterações para convergência até a tolerância especificada."
+                                class="inline-block ml-2 w-20 h-auto" />
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#item-2"
+                            class="text-blue-600 hover:text-blue-800 hover:underline flex items-start gap-2">
+                            <span class="font-bold min-w-[60px]">Item 2:</span>
+                            <span>Tabela de Coeficientes ($a_W, a_E, a_P, b_P$) para a solução final .</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#item-3"
+                            class="text-blue-600 hover:text-blue-800 hover:underline flex items-start gap-2">
+                            <span class="font-bold min-w-[60px]">Item 3:</span>
+                            <span>Tabela comparativa: $u_{Analítico}$ vs $u_{Numérico}$ e erro absoluto.</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#item-4"
+                            class="text-blue-600 hover:text-blue-800 hover:underline flex items-start gap-2">
+                            <span class="font-bold min-w-[60px]">Item 4:</span>
+                            <span>Gráfico de $u(x)$ contendo as soluções analítica e numérica.</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#item-5"
+                            class="text-blue-600 hover:text-blue-800 hover:underline flex items-start gap-2">
+                            <span class="font-bold min-w-[60px]">Item 5:</span>
+                            <span>Soluções da velocidade média e erro associado (Integração numérica).</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#item-6"
+                            class="text-blue-600 hover:text-blue-800 hover:underline flex items-start gap-2">
+                            <span class="font-bold min-w-[60px]">Item 6:</span>
+                            <span>Cálculo da Média da Norma L1 do erro.</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#item-7"
+                            class="text-blue-600 hover:text-blue-800 hover:underline flex items-start gap-2">
+                            <span class="font-bold min-w-[60px]">Item 7:</span>
+                            <span>Listagem do programa computacional.</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+
+        </section>
+
+
+
+        <section>
+            <h2 id="item-1">Item 1: Número de iterações e Gráfico de Convergência </h2>
+            Foram necessárias <span id="lbl_iter" class="font-bold">--</span> iterações para convergência até a
+            tolerância especificada. O gráfico abaixo mostra a variação do resíduo máximo em escala logarítmica ao longo
+            das iterações.
+            <div class="container-grafico">
+                <img src="./grafico1.png" alt="">
+            </div>
+        </section>
+
+        <section>
+            <h2>2. Tabelas de Coeficientes e Resultados</h2 >
+            <h4> Para a solução final, tabela contendo em cada linha: número do nó, xP, aw , aP , ae , bP , onde a P uP
+                = aw u W + ae uE + b</h4>
+            <h3 id="item-2">Item 2: Tabela de Coeficientes Finais</h3>
+            <p class="text-xs text-gray-500 mb-2">Nota: Linhas em vermelho indicam volumes fictícios.</p>
+            <div class="overflow-x-auto bg-white border border-gray-200 rounded">
+                <table id="tabCoef">
+                    <thead class="sticky top-0 z-10">
+                        <tr>
+                            <th>Vol (i)</th>
+                            <th>$a_W$</th>
+                            <th>$a_E$</th>
+                            <th>$a_P$</th>
+                            <th>$b_P$ (Fonte)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="bg-red-50">
+                            <td>1</td>
+                            <td>0.000000</td>
+                            <td>-1.000000</td>
+                            <td>1.000000</td>
+                            <td>0.000000E+00</td>
+                        </tr>
+                        <tr>
+                            <td>2</td>
+                            <td>2.000000</td>
+                            <td>2.000000</td>
+                            <td>3.990898</td>
+                            <td>-1.408196E-04</td>
+                        </tr>
+                        <tr>
+                            <td>3</td>
+                            <td>1.990898</td>
+                            <td>2.000000</td>
+                            <td>3.982064</td>
+                            <td>-3.134034E-04</td>
+                        </tr>
+                        <tr>
+                            <td>4</td>
+                            <td>1.982064</td>
+                            <td>2.000000</td>
+                            <td>3.973844</td>
+                            <td>-7.412659E-04</td>
+                        </tr>
+                        <tr>
+                            <td>5</td>
+                            <td>1.973844</td>
+                            <td>2.000000</td>
+                            <td>3.966967</td>
+                            <td>-1.802073E-03</td>
+                        </tr>
+                        <tr>
+                            <td>6</td>
+                            <td>1.966967</td>
+                            <td>2.000000</td>
+                            <td>3.963108</td>
+                            <td>-4.427064E-03</td>
+                        </tr>
+                        <tr>
+                            <td>7</td>
+                            <td>1.963108</td>
+                            <td>2.000000</td>
+                            <td>3.966284</td>
+                            <td>-1.089540E-02</td>
+                        </tr>
+                        <tr>
+                            <td>8</td>
+                            <td>1.966284</td>
+                            <td>2.000000</td>
+                            <td>3.986308</td>
+                            <td>-2.667710E-02</td>
+                        </tr>
+                        <tr>
+                            <td>9</td>
+                            <td>1.986308</td>
+                            <td>2.000000</td>
+                            <td>4.047357</td>
+                            <td>-6.421890E-02</td>
+                        </tr>
+                        <tr>
+                            <td>10</td>
+                            <td>2.047357</td>
+                            <td>2.000000</td>
+                            <td>4.209389</td>
+                            <td>-1.475209E-01</td>
+                        </tr>
+                        <tr>
+                            <td>11</td>
+                            <td>2.209389</td>
+                            <td>2.000000</td>
+                            <td>4.623351</td>
+                            <td>-2.949012E-01</td>
+                        </tr>
+                        <tr>
+                            <td>12</td>
+                            <td>2.623351</td>
+                            <td>2.000000</td>
+                            <td>5.818182</td>
+                            <td>-5.132946E-01</td>
+                        </tr>
+                        <tr class="bg-red-50">
+                            <td>13</td>
+                            <td>-1.000000</td>
+                            <td>0.000000</td>
+                            <td>1.000000</td>
+                            <td>2.000000E+00</td>
+                        </tr>
+                    </tbody>
+
+                </table>
+            </div>
+        </section>
+
+        <hr>
+        <br>
+
+
+
+        <section>Coeficientes e termos-fontes
+
+            <h2 id="item-3">Item 3: Tabela de Resultados (Numérico vs. Analítico)</h2>
+            <h4> Uma tabela contendo em cada linha (incluindo os dois dos contornos): número do volume, xP, uP
+                analítico, uP
+                numérico, e o erro.</h4>
+            <p class="text-xs text-gray-500 mb-2">Nota: Linhas em vermelho indicam volumes fictícios.</p>
+            <p>A Tabela A seguir apresenta, para cada volume de controle, incluindo os volumes fictícios de contorno, a posiçãos volumes de controles calculados pelo código fortran, são comparados com os valores analíticos obtidos a partir da solução exata da equação de Burgers.</p>
+            <div class="overflow-x-auto bg-white border border-gray-200 rounded">
+                <table id="tabRes">
+                    <thead class="sticky top-0 z-10">
+                        <tr>
+                            <th>Vol (i)</th>
+                            <th>Posição $x$</th>
+                            <th>$u_{Analítico}$</th>
+                            <th>$u_{Numérico}$</th>
+                            <th>Erro Absoluto</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="bg-red-50">
+                            <td>1</td>
+                            <td>0.000000E+00</td>
+                            <td>0.000000E+00</td>
+                            <td>0.000000E+00</td>
+                            <td>0.000000E+00</td>
+                        </tr>
+                        <tr>
+                            <td>2</td>
+                            <td>4.545455E-02</td>
+                            <td>2.612690E-05</td>
+                            <td>-2.523513E-03</td>
+                            <td>2.549640E-03</td>
+                        </tr>
+                        <tr>
+                            <td>3</td>
+                            <td>1.363636E-01</td>
+                            <td>1.321374E-04</td>
+                            <td>-7.488645E-03</td>
+                            <td>7.620782E-03</td>
+                        </tr>
+                        <tr>
+                            <td>4</td>
+                            <td>2.272727E-01</td>
+                            <td>3.952623E-04</td>
+                            <td>-1.224140E-02</td>
+                            <td>1.263666E-02</td>
+                        </tr>
+                        <tr>
+                            <td>5</td>
+                            <td>3.181818E-01</td>
+                            <td>1.048355E-03</td>
+                            <td>-1.653059E-02</td>
+                            <td>1.757894E-02</td>
+                        </tr>
+                        <tr>
+                            <td>6</td>
+                            <td>4.090909E-01</td>
+                            <td>2.669375E-03</td>
+                            <td>-1.980580E-02</td>
+                            <td>2.247518E-02</td>
+                        </tr>
+                        <tr>
+                            <td>7</td>
+                            <td>5.000000E-01</td>
+                            <td>6.692851E-03</td>
+                            <td>-2.077518E-02</td>
+                            <td>2.746803E-02</td>
+                        </tr>
+                        <tr>
+                            <td>8</td>
+                            <td>5.909091E-01</td>
+                            <td>1.667938E-02</td>
+                            <td>-1.631197E-02</td>
+                            <td>3.299135E-02</td>
+                        </tr>
+                        <tr>
+                            <td>9</td>
+                            <td>6.818182E-01</td>
+                            <td>4.146660E-02</td>
+                            <td>1.251236E-03</td>
+                            <td>4.021536E-02</td>
+                        </tr>
+                        <tr>
+                            <td>10</td>
+                            <td>7.727273E-01</td>
+                            <td>1.029901E-01</td>
+                            <td>5.084185E-02</td>
+                            <td>5.214823E-02</td>
+                        </tr>
+                        <tr>
+                            <td>11</td>
+                            <td>8.636364E-01</td>
+                            <td>2.556954E-01</td>
+                            <td>1.794862E-01</td>
+                            <td>7.620921E-02</td>
+                        </tr>
+                        <tr>
+                            <td>12</td>
+                            <td>9.545455E-01</td>
+                            <td>6.347198E-01</td>
+                            <td>5.061996E-01</td>
+                            <td>1.285202E-01</td>
+                        </tr>
+                        <tr class="bg-red-50">
+                            <td>13</td>
+                            <td>1.000000E+00</td>
+                            <td>1.000000E+00</td>
+                            <td>1.000000E+00</td>
+                            <td>0.000000E+00</td>
+                        </tr>
+                    </tbody>
+
+                </table>
+            </div>
+        </section>
+        <hr>
+
+
+        <section id="item-4">
+            <h2 id="item-4">Item 4: Gráfico de $u_P$ versus $x_P$ (Analítico × Numérico)</h2>
+
+            <p class="text-xs text-gray-500 mb-2">
+                Inclui os dois volumes fictícios de contorno (i = 1 e i = 13).
+            </p>
+
+            <div class="bg-white border border-gray-200 rounded p-3">
+                <img src="./grafico2.png" alt="">
+            </div>
+        </section>
+
+
+        <section id="item-5">
+            
+            <h2 id="item-5">Item 5: Velocidade média (regra do retângulo) e erro</h2>
+
+            <p class="text-sm text-gray-700 mb-2">
+                A velocidade média no domínio é definida por:
+                <span class="font-mono">ū = (1/L) ∫₀ᴸ u(x) dx</span>.
+                No método numérico, a integral é aproximada pela <b>regra do retângulo</b>:
+                <span class="font-mono">ū_num ≈ (1/L) Σ uP(i) · Δx</span>, com <span class="font-mono">L = 1</span>.
+            </p>
+
+            <div class="overflow-x-auto bg-white border border-gray-200 rounded">
+                <table id="tabMedia">
+                    <thead class="sticky top-0 z-10">
+                        <tr>
+                            <th>Grandeza</th>
+                            <th>Valor</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Velocidade média numérica, $\\bar{u}_{num}$ (retângulo)</td>
+                            <td>5.837288626E-02</td>
+                        </tr>
+                        <tr>
+                            <td>Velocidade média analítica, $\\bar{u}_{ana}$</td>
+                            <td>9.995459801E-02</td>
+                        </tr>
+                        <tr>
+                            <td>Erro absoluto, $|\\bar{u}_{ana} - \\bar{u}_{num}|$</td>
+                            <td>4.158171175E-02</td>
+                        </tr>
+                        <tr>
+                            <td>Erro relativo, $\\dfrac{|\\bar{u}_{ana} - \\bar{u}_{num}|}{|\\bar{u}_{ana}|}$</td>
+                            <td>4.159E-01 (≈ 41.6%)</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <p class="text-xs text-gray-500 mt-2">
+                Observação: como $L=1$, a normalização por $L$ não altera o valor numérico.
+            </p>
+        </section>
+        
+        
+        <hr>
+        <section id="item-6">
+            <h2 id="item-6">Item 6: Média da norma L1 do erro de $u(x)$</h2>
+
+            <p class="text-sm text-gray-700 mb-2">
+                Seja o erro em cada volume: <span class="font-mono">e(i) = |uP_num(i) - uP_ana(i)|</span>.
+                A norma L1 discreta é definida por:
+                <span class="font-mono">||e||₁ = Σ e(i)</span>.
+                A <b>média</b> (norma L1 normalizada por N) é:
+                <span class="font-mono">||e||₁ / N</span>.
+            </p>
+
+            <div class="overflow-x-auto bg-white border border-gray-200 rounded">
+                <table id="tabL1">
+                    <thead class="sticky top-0 z-10">
+                        <tr>
+                            <th>Grandeza</th>
+                            <th>Valor</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Norma L1, $||e||_1$</td>
+                            <td>4.204136184E-01</td>
+                        </tr>
+                        <tr>
+                            <td>Média da norma L1, $||e||_1 / N$</td>
+                            <td>3.821941985E-02</td>
+                        </tr>
+                        <tr>
+                            <td>Número de volumes (incluindo contornos), $N$</td>
+                            <td>13</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <p class="text-xs text-gray-500 mt-2">
+                Observação: aqui foi usado <b>N = 13</b> (incluindo os dois volumes fictícios), como aparece no
+                relatório do programa.
+                Se o seu professor exigir a média apenas nos volumes reais (N-2), é só ajustar para <span
+                    class="font-mono">N=11</span>.
+            </p>
+
+
+        </section>
+
+        <section>
+        <h2 id="item-7">Item 7: Listagem do Programa Computacional</h2>
+
+
+        <p class="text-sm text-gray-700 mb-3">
+            O programa computacional utilizado neste trabalho foi fornecido pelo professor e já
+            implementava corretamente a solução numérica da equação de Burgers unidimensional em
+            regime permanente por meio do Método dos Volumes Finitos, as alterações foram realizadas diretamente no código fortran.
+            São descritas a seguir as modificações efetuadas em relação ao código original.
+        </p>
+
+        <h4 class="font-semibold mt-4 mb-2">Arquivos modificados</h4>
+        <p class="text-sm text-gray-700 mb-2">
+            As alterações foram restritas aos seguintes arquivos:
+        </p>
+
+        <ul class="list-disc list-inside text-sm text-gray-700 mb-3">
+            <li><code>coef.f90</code></li>
+            <li><code>dados.f90</code></li>
+            <li><code>resultados.f90</code></li>
+            <li><code>dados.txt</code></li>
+
+        </ul>
+
+        <div id="fortran-code-display" class="mt-8"></div>
+
+        <script>
+            const fortranFiles = [
+                { name: 'coef.f90', lang: 'fortran' },
+                { name: 'dados.f90', lang: 'fortran' },
+                { name: 'dados.txt', lang: 'plain' },
+                { name: 'principal.f90', lang: 'fortran' },
+                { name: 'resultados.f90', lang: 'fortran' },
+                { name: 'saida.txt', lang: 'plain' },
+                { name: 'solver.f90', lang: 'fortran' },
+            ];
+
+            const codeDisplayDiv = document.getElementById('fortran-code-display');
+
+            async function loadFortranFiles() {
+                for (const file of fortranFiles) {
+                    const filePath = `./srcFortran/${file.name}`;
+                    try {
+                        const response = await fetch(filePath);
+                        if (!response.ok) {
+                            throw new Error(`HTTP error! status: ${response.status}`);
+                        }
+                        const content = await response.text();
+
+                        const fileSection = document.createElement('div');
+                        fileSection.className = 'mb-6';
+                        fileSection.innerHTML = `
+                            <h3 class="font-semibold text-lg mb-2">${file.name}</h3>
+                            <pre class="bloco-codigo"><code class="language-${file.lang}">${content}</code></pre>
+                        `;
+                        codeDisplayDiv.appendChild(fileSection);
+
+                        // Highlight the newly added code block
+                        Prism.highlightElement(fileSection.querySelector('code'));
+
+                    } catch (error) {
+                        console.error(`Error loading ${file.name}:`, error);
+                        const errorSection = document.createElement('div');
+                        errorSection.className = 'mb-6 text-red-600';
+                        errorSection.innerHTML = `
+                            <h3 class="font-semibold text-lg mb-2">${file.name}</h3>
+                            <p>Erro ao carregar o arquivo: ${error.message}</p>
+                        `;
+                        codeDisplayDiv.appendChild(errorSection);
+                    }
+                }
+            }
+
+            // Call the function to load files when the DOM is ready
+            document.addEventListener('DOMContentLoaded', loadFortranFiles);
+        </script>
+
+        <script id="mainScript" src="script.js"></script>
+
+        <script>
+
+
+
+
+            const el = document.getElementById('gridDiagram');
+            if (!el) return;
+            const w = el.clientWidth > 0 ? el.clientWidth : 500;
+            const h = el.clientHeight > 0 ? el.clientHeight : 100;
+            const p = 40;
+
+            // Proteção contra N=0
+            let numVols = simulacao.N > 1 ? simulacao.N : 2;
+            const step = (w - 2 * p) / (numVols - 1);
+
+            let svg = `<svg width="100%" height="100%" viewBox="0 0 ${w} ${h}">`;
+
+            // Eixo Principal
+            svg += `<line x1="${p}" y1="${h / 2}" x2="${w - p}" y2="${h / 2}" stroke="#9ca3af" stroke-width="2"/>`;
+
+            for (let i = 0; i < simulacao.N; i++) {
+                let cx = p + i * step;
+                let isGhost = (i === 0 || i === simulacao.N - 1);
+                let col = isGhost ? "#ef4444" : "#2563eb";
+                let r = isGhost ? 5 : 3.5;
+
+                // Desenha nó
+                svg += `<circle cx="${cx}" cy="${h / 2}" r="${r}" fill="${col}" />`;
+
+                // Texto do índice (apenas cantos e meio para não poluir)
+                if (i === 0 || i === 1 || i === simulacao.N - 1 || i === Math.floor(simulacao.N / 2)) {
+                    svg += `<text x="${cx}" y="${h / 2 + 20}" font-size="10" text-anchor="middle" fill="#4b5563" font-family="sans-serif">i=${i}</text>`;
+                }
+            }
+
+            // Demarcação do Domínio Físico
+            // No grid: Nó 0 (Ghost) ---| Face 0 |--- Nó 1 (Real) ... Nó N-2 (Real) ---| Face N-2 |--- Nó N-1 (Ghost)
+            let xStart = p + 0.5 * step;
+            let xEnd = p + (simulacao.N - 1.5) * step;
+
+            // Linhas tracejadas verticais
+            svg += `<line x1="${xStart}" y1="${h / 2 - 15}" x2="${xStart}" y2="${h / 2 + 15}" stroke="black" stroke-width="1.5" stroke-dasharray="4"/>`;
+            svg += `<line x1="${xEnd}" y1="${h / 2 - 15}" x2="${xEnd}" y2="${h / 2 + 15}" stroke="black" stroke-width="1.5" stroke-dasharray="4"/>`;
+
+            // Labels x=0 e x=1
+            svg += `<text x="${xStart}" y="${h / 2 - 20}" font-size="11" text-anchor="middle" font-weight="bold">x=0</text>`;
+            svg += `<text x="${xEnd}" y="${h / 2 - 20}" font-size="11" text-anchor="middle" font-weight="bold">x=1</text>`;
+
+            svg += `</svg>`;
+            el.innerHTML = svg;
+            }
+
+            // Inicialização
+            window.onload = function () {
+                // Tenta carregar o texto do script.js para exibição
+                fetch('script.js')
+                    .then(response => {
+                        if (!response.ok) throw new Error("Não encontrado");
+                        return response.text();
+                    })
+                    .then(text => {
+                        const codeBlock = document.getElementById('codeDisplay');
+                        if (codeBlock) {
+                            codeBlock.textContent = text;
+                            Prism.highlightElement(codeBlock);
+                        }
+                    })
+                    .catch(err => {
+                        const codeBlock = document.getElementById('codeDisplay');
+                        if (codeBlock) codeBlock.textContent = "// Erro ao carregar script.js (verifique se o arquivo está na mesma pasta). \n// Execute via servidor local (http-server, Live Server, etc).";
+                    });
+
+                // Iniciar com valores padrão se a função global existir
+                if (typeof inicializar === 'function') {
+                    inicializar();
+                } else {
+                    console.warn("A função 'inicializar()' do script.js não foi encontrada. Verifique o carregamento do arquivo.");
+                }
+            }
+        </script>
+    </div>
+</body>
+
+</html>
