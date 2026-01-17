@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Resolução Consolidada — Prova CFD I</title>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #f1f5f9;
+      color: #1e293b;
+      padding: 20px;
+    }
+
+    .paper {
+      max-width: 210mm;
+      margin: 0 auto;
+      background: white;
+      padding: 15mm 20mm;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+      border-radius: 8px;
+    }
+
+    h1 {
+      font-size: 24pt;
+      font-weight: 800;
+      color: #0f172a;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+    h2 {
+      font-size: 16pt;
+      font-weight: 700;
+      color: #1e293b;
+      border-bottom: 2px solid #e2e8f0;
+      padding-bottom: 4px;
+      margin-top: 20px;
+      margin-bottom: 12px;
+    }
+
+    h3 {
+      font-size: 13pt;
+      font-weight: 600;
+      margin-top: 16px;
+      margin-bottom: 8px;
+    }
+
+    p {
+      font-size: 11pt;
+      line-height: 1.6;
+      text-align: justify;
+      margin-bottom: 10px;
+    }
+
+    ul,
+    ol {
+      list-style-position: inside;
+      margin-bottom: 15px;
+    }
+
+    li {
+      margin-bottom: 5px;
+    }
+
+    .box {
+      background-color: #f8fafc;
+      border-left: 4px solid #3b82f6;
+      padding: 15px;
+      margin: 15px 0;
+      border-radius: 0 4px 4px 0;
+    }
+
+    .math {
+      font-family: 'JetBrains Mono', monospace;
+      background: #f1f5f9;
+      padding: 12px;
+      border-radius: 4px;
+      display: block;
+      margin: 15px 0;
+      text-align: center;
+      font-weight: 500;
+      overflow-x: auto;
+    }
+
+    /* Estilo do Acordeão */
+    .accordion-item {
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      margin-bottom: 12px;
+      overflow: hidden;
+    }
+
+    .accordion-header {
+      width: 100%;
+      padding: 18px 24px;
+      background: #ffffff;
+      text-align: left;
+      font-weight: 700;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .accordion-header:hover {
+      background: #f8fafc;
+    }
+
+    .accordion-content {
+      display: none;
+      padding: 25px;
+      border-top: 1px solid #e2e8f0;
+      background: #fff;
+    }
+
+    .active .accordion-content {
+      display: block;
+    }
+
+    .active .accordion-header {
+      background: #eff6ff;
+      color: #1d4ed8;
+      border-bottom-color: #3b82f6;
+    }
+
+    .chevron {
+      transition: transform 0.3s;
+    }
+
+    .active .chevron {
+      transform: rotate(180deg);
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="paper">
+    <div class="text-center mb-10">
+      <p class="text-sm font-bold text-slate-500 uppercase tracking-widest mb-2">Universidade Federal do Paraná</p>
+      <p class="text-xs text-slate-400 uppercase tracking-widest mb-4">Programa de Pós-Graduação em Métodos Numéricos em Engenharia</p>
+      <h1>CFD — Prova</h1>
+      <p class="text-slate-500 text-sm mt-1">Aluno: Romulo de Aguiar Beninca</p>
+    </div>
+
+    <section>
+      <h2>Repositório</h2>
+      <p>O código-fonte está disponível em: 
+        <a href="https://github.com/rbeninca/cfd1" target="_blank" style="color:#1d4ed8">https://github.com/rbeninca/cfd1</a>
+      </p>
+      <p>Publicação: <a href="https://rbeninca.github.io/cfd1/prova" target="_blank" style="color:#1d4ed8">https://rbeninca.github.io/cfd1/prova</a></p>
+    </section>
+
+    <div class="accordion-item">
+      <button class="accordion-header" onclick="toggleAccordion(this)">
+        <span>Questão 1 :Em relação a um fenômeno real, cite e caracterize os tipos de erros envolvidos em um resultado
+          numérico.</span>
+        <svg class="chevron w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+        </svg>
+
+      </button>
+      <div class="accordion-content">
+        <h2>Resolução</h2>
+
+        <p>
+          Conforme estudado no Capítulo 3, em relação a um fenômeno real, os erros envolvidos em um resultado numérico
+          podem ser classificados a partir da comparação entre o fenômeno observado,
+          o modelo matemático adotado e a solução numérica obtida.
+        </p>
+
+        <ul class="list-disc ml-6">
+          <li>
+            <strong>Erro de modelagem:</strong>
+            Diferença entre o valor verdadeiro de uma variável de interesse e a solução
+            analítica exata do modelo matemático adotado, tendo como causas principais
+            as simplificações do fenômeno real e a incerteza nos dados.
+          </li>
+
+          <li>
+            <strong>Erro numérico:</strong>
+            Diferença entre a solução analítica exata do modelo matemático e a solução
+            numérica obtida, sendo composto por:
+            <ul class="list-circle ml-6 mt-2">
+              <li>
+                <strong>Erro de discretização (ou truncamento):</strong>
+                associado às aproximações introduzidas na transformação do modelo
+                contínuo em um modelo discreto (malha espacial e passo de tempo).
+              </li>
+              <li>
+                <strong>Erro de arredondamento:</strong>
+                associado à precisão finita da arquitetura computacional utilizada.
+              </li>
+              <li>
+                <strong>Erro de iteração:</strong>
+                associado à interrupção do processo iterativo antes da convergência total
+                dos sistemas algébricos.
+              </li>
+            </ul>
+          </li>
+        </ul>
+
+        <div class="box">
+          <strong>Verificação e Validação (V&amp;V):</strong>
+          A quantificação do erro numérico é tratada no processo de
+          <em>Verificação</em>, enquanto a avaliação do erro de modelagem é tratada no
+          processo de <em>Validação</em>.
+        </div>
+      </div>
+    </div>
+    <!-- Fim Questão 1      -->
+    <!-- Início Questão 2        -->
+    <div class="accordion-item">
+      <button class="accordion-header" onclick="toggleAccordion(this)">
+        <span>Questão 2: Explique a diferença entre as formulações explícita, implícita e totalmente implícita.</span>
+        <svg class="chevron w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+        </svg>
+      </button>
+      <div class="accordion-content">
+        <p>
+          No contexto da difusão de calor transiente, as formulações explícita,
+          implícita e totalmente implícita diferenciam-se pela forma como o termo
+          temporal é tratado durante o processo de integração no tempo, conforme a
+          formulação geral em função do parâmetro <em>θ</em>, apresentada no
+          Capítulo 4.
+        </p>
+
+        <ul class="list-disc ml-6">
+          <li>
+            <strong>Formulação explícita (θ = 0):</strong>
+            utiliza apenas informações do instante anterior (<em>t − Δt</em>) para
+            calcular a solução no instante atual. É computacionalmente simples,
+            porém condicionalmente estável, exigindo restrições no passo de tempo
+            para garantir a estabilidade numérica.
+          </li>
+
+          <li>
+            <strong>Formulação implícita (θ = 0,5 – Crank–Nicolson):</strong>
+            utiliza a média entre os instantes atual e anterior no tratamento do
+            termo temporal. Apresenta maior acurácia temporal e melhor estabilidade
+            em relação à formulação explícita, sendo classificada como
+            incondicionalmente estável para problemas de difusão linear.
+          </li>
+
+          <li>
+            <strong>Formulação totalmente implícita (θ = 1):</strong>
+            utiliza exclusivamente informações do instante atual (<em>t</em>) na
+            discretização temporal. É incondicionalmente estável, permitindo o uso
+            de passos de tempo maiores, embora possa introduzir maior difusão
+            numérica em comparação à formulação de Crank–Nicolson.
+          </li>
+        </ul>
+
+        <div class="box">
+          Segundo o Capítulo 4, a escolha da formulação temporal envolve um compromisso
+          entre estabilidade, acurácia e custo computacional.
+        </div>
+      </div>
+
+      <div class="accordion-item">
+        <button class="accordion-header" onclick="toggleAccordion(this)">
+          <span>Questão 3: Defina difusão numérica e dispersão numérica.</span>
+          <svg class="chevron w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+          </svg>
+        </button>
+        <div class="accordion-content">
+          <p>
+            A difusão numérica e a dispersão numérica são manifestações dos
+            <strong>erros de discretização</strong> introduzidos no processo de
+            aproximação dos termos convectivos das equações de transporte,
+            conforme discutido no Capítulo 6.
+          </p>
+
+          <ul class="list-disc ml-6">
+            <li>
+              <strong>Difusão numérica:</strong>
+              caracteriza-se pelo <strong>suavizamento artificial dos gradientes</strong>
+              da variável de interesse, não associado a um mecanismo físico real.
+              Esse efeito é típico de esquemas de baixa ordem, como o
+              Upwind de Primeira Ordem (UDS), sendo mais pronunciado em
+              problemas dominados por convecção.
+            </li>
+
+            <li>
+              <strong>Dispersão numérica:</strong>
+              caracteriza-se pela presença de <strong>oscilações não físicas</strong>
+              na solução numérica, geralmente associadas ao uso de esquemas de
+              maior ordem em regiões com fortes gradientes ou descontinuidades,
+              quando não há dissipação numérica suficiente.
+            </li>
+          </ul>
+
+          <div class="box">
+            Enquanto a difusão numérica atua como um mecanismo dissipativo artificial,
+            a dispersão numérica introduz oscilações artificiais na solução.
+          </div>
+        </div>
+      </div>
+
+      <div class="accordion-item">
+        <button class="accordion-header" onclick="toggleAccordion(this)">
+          <span>Questão 4: Cite cinco funções de interpolação, explicando sua utilidade e defina matematicamente pelo
+            menos
+            duas delas.</span>
+          <svg class="chevron w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+          </svg>
+        </button>
+        <div class="accordion-content">
+          <p>
+            No Método dos Volumes Finitos, as funções de interpolação são utilizadas para
+            <strong>estimar os valores das variáveis nas faces dos volumes de controle</strong>
+            a partir dos valores conhecidos nos centros, sendo essenciais para o cálculo
+            dos fluxos convectivos.
+          </p>
+
+          <p>
+            As principais funções de interpolação discutidas no Capítulo 6 são:
+          </p>
+
+          <ul class="list-disc ml-6">
+            <li><strong>CDS – Central Differencing Scheme</strong></li>
+            <li><strong>UDS – Upwind Differencing Scheme</strong></li>
+            <li><strong>Esquema Exato (Exponencial)</strong></li>
+            <li><strong>Esquema Híbrido</strong></li>
+            <li><strong>WUDS / Power-Law Scheme</strong></li>
+          </ul>
+
+          <p>
+            A seguir, apresentam-se as definições matemáticas de duas dessas funções
+            de interpolação.
+          </p>
+
+          <ul class="list-disc ml-6">
+            <li>
+              <strong>CDS (Central Differencing Scheme):</strong>
+              o valor da variável na face é obtido pela média aritmética entre os valores
+              dos volumes adjacentes, sendo dado por:
+              <div class="box mt-2">
+                θ<sub>e</sub> = ( θ<sub>P</sub> + θ<sub>E</sub> ) / 2
+              </div>
+            </li>
+
+            <li>
+              <strong>UDS (Upwind Differencing Scheme):</strong>
+              o valor da variável na face é aproximado pelo valor do volume a montante,
+              de acordo com o sentido do escoamento. Para u &gt; 0:
+              <div class="box mt-2">
+                θ<sub>e</sub> ≈ θ<sub>P</sub>
+              </div>
+            </li>
+          </ul>
+
+          <div class="box">
+            A escolha da função de interpolação influencia diretamente a acurácia,
+            a estabilidade e a presença de difusão ou dispersão numérica na solução.
+          </div>
+        </div>
+      </div>
+
+      <div class="accordion-item">
+        <button class="accordion-header" onclick="toggleAccordion(this)">
+          <span>Questão 5: O que é correção adiada? Ao aplicá-la, o que se modifica e o que não se altera? Qual sua
+            utilidade?</span>
+          <svg class="chevron w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+          </svg>
+        </button>
+        <div class="accordion-content">
+          <p>Conforme discutido no Capítulo 7, a <strong>correção adiada</strong> é uma técnica utilizada no Método dos
+            Volumes
+            Finitos cujo objetivo é empregar um <strong>esquema de alta ordem</strong> para
+            os termos convectivos, mantendo a <strong>estabilidade numérica</strong> de um
+            esquema de primeira ordem.
+          </p>
+
+          <p>
+            Na prática, a correção adiada consiste em utilizar um esquema de primeira ordem,
+            como o <strong>Upwind de Primeira Ordem (UDS)</strong>, na montagem da matriz
+            principal do sistema, enquanto a diferença entre o esquema de alta ordem
+            (por exemplo, <strong>CDS</strong>) e o esquema de primeira ordem é incorporada
+            apenas no <strong>termo-fonte</strong>.
+          </p>
+
+          <p>
+            Ao aplicar a correção adiada, <strong>modifica-se apenas o termo-fonte</strong>
+            da equação discretizada, enquanto os coeficientes da matriz permanecem
+            inalterados. Dessa forma, mesmo que o problema seja linear do ponto de vista
+            matemático, ele torna-se <strong>numericamente não linear</strong>, sendo
+            necessário recalcular os termos-fonte a cada iteração.
+          </p>
+
+          <p>
+            A utilidade da correção adiada está em permitir a obtenção de
+            <strong>soluções de segunda ordem de acurácia</strong> ao empregar
+            <strong>β = 1</strong>, mantendo a estabilidade típica de esquemas de
+            primeira ordem e evitando as instabilidades numéricas associadas ao uso direto
+            de esquemas de alta ordem.
+          </p>
+        </div>
+      </div>
+      <!-- fim questão 5 -->
+      <!-- questão 6 -->
+
+      <div class="accordion-item">
+        <button class="accordion-header" onclick="toggleAccordion(this)">
+          <span>Questão 6: Enunciado da questão 6:Por que é necessário usar métodos de acoplamento pressão-velocidade?
+            Cite três métodos. </span>
+          <svg class="chevron w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+          </svg>
+        </button>
+        <div class="accordion-content">
+          <p>
+            Em escoamentos incompressíveis, a pressão não possui uma equação explícita de
+            transporte. Assim, é necessário utilizar métodos de acoplamento
+            pressão-velocidade para <strong>transformar a equação de conservação da massa
+              em uma equação para a pressão</strong>, garantindo que o campo de velocidades
+            satisfaça simultaneamente a equação de quantidade de movimento e a continuidade.
+          </p>
+
+          <p>
+            Para esse fim, diferentes métodos de acoplamento pressão-velocidade foram
+            propostos na literatura, destacando-se:
+          </p>
+
+          <ul class="list-disc ml-6">
+            <li>SIMPLE</li>
+            <li>SIMPLER</li>
+            <li>SIMPLEC</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="accordion-item">
+        <button class="accordion-header" onclick="toggleAccordion(this)">
+          <span>Questão 7: Coeficiente diferencial dp no SIMPLEC</span>
+          <svg class="chevron w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+          </svg>
+        </button>
+        <div class="accordion-content">
+          <p>
+            Em métodos de acoplamento pressão-velocidade, o objetivo é obter um campo de
+            velocidades que satisfaça simultaneamente a equação de quantidade de movimento
+            e a equação de conservação da massa. Para isso, parte-se de um
+            <strong>campo estimado de pressão</strong> (<em>p*</em>), que não satisfaz a continuidade,
+            mas cuja solução da equação de quantidade de movimento fornece um
+            <strong>campo estimado de velocidades</strong> (<em>u*</em>).
+          </p>
+
+          <p>
+            No método <strong>SIMPLEC</strong>, admite-se que as correções de velocidade nas faces
+            sejam iguais à correção no centro do volume de controle, isto é:
+          </p>
+
+          <div class="box">
+            u′<sub>w</sub> = u′<sub>e</sub> = u′<sub>p</sub>
+          </div>
+
+          <p>
+            Essa hipótese simplifica a relação entre as correções de velocidade e a correção
+            de pressão, permitindo obter uma expressão direta para o
+            <strong>coeficiente diferencial</strong> associado ao volume de controle <em>p</em>.
+          </p>
+
+          <p>
+            A partir da equação discretizada da quantidade de movimento, o coeficiente
+            diferencial do SIMPLEC é dado por:
+          </p>
+
+          <div class="box">
+            d<sub>p</sub> =
+            A<sub>p</sub> /
+            ( a<sub>p</sub><sup>u</sup> − a<sub>w</sub><sup>u</sup> − a<sub>e</sub><sup>u</sup> )
+          </div>
+
+          <p>
+            Com esse coeficiente, constrói-se a equação de correção de pressão, permitindo
+            atualizar o campo de pressão e corrigir o campo de velocidades até que a
+            equação da continuidade seja satisfeita em todos os volumes de controle.
+          </p>
+        </div>
+      </div>
+
+      <div class="accordion-item">
+        <button class="accordion-header" onclick="toggleAccordion(this)">
+          <span>Questão 8: Obtenha os coeficientes e termo-fonte de um volume de controle fictício para aplicar a condição de 
+contorno de Robin, dedução </span>
+          <svg class="chevron w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+          </svg>
+        </button>
+        <div class="accordion-content">
+          <!--resulução no papel 4 folhas A4-->
+          <img src="8-1.jpeg" alt="Resolução da Questão 8" class="mx-auto mb-4" />
+          <img src="8-2.jpeg" alt="Resolução da Questão 8" class="mx-auto mb-4" />
+          <img src="8-3.jpeg" alt="Resolução da Questão 8" class="mx-auto mb-4" />
+          <img src="8-4.jpeg" alt="Resolução da Questão 8" class="mx-auto mb-4" />
+        </div>
+          
+          <p>
+          
+
+
+        </div>
+      </div>
+
+      <div class="accordion-item">
+        <button class="accordion-header" onclick="toggleAccordion(this)">
+          <span>Questão 9: Discretize a equação abaixo sobre uma malha uniforme, obtendo os coeficientes e termo-fonte dos 
+volumes internos, e explique as aproximações feitas: </span>
+          <svg class="chevron w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+          </svg>
+        </button>
+        <div class="accordion-content">
+          <!--resulução no papel 2 folhas A4-->
+          <img src="9-1.jpeg" alt="Resolução da Questão 9" class="mx-auto mb-4" />
+          <img src="9-2.jpeg" alt="Resolução da Questão 9" class="mx-auto mb-4" />
+      
+        </div>
+      </div>
+
+    </div>
+
+    <script>
+      function toggleAccordion(header) {
+        const item = header.parentElement;
+        const isActive = item.classList.contains('active');
+
+        // Fecha todos os outros antes de abrir o atual (opcional)
+        document.querySelectorAll('.accordion-item').forEach(el => {
+          el.classList.remove('active');
+        });
+
+        if (!isActive) {
+          item.classList.add('active');
+        }
+      }
+
+      // Expande todos os acordeões quando entra no modo de impressão
+      window.addEventListener('beforeprint', function() {
+        document.querySelectorAll('.accordion-item').forEach(el => {
+          el.classList.add('active');
+        });
+      });
+
+      // Restaura o estado anterior ao sair do modo de impressão
+      window.addEventListener('afterprint', function() {
+        document.querySelectorAll('.accordion-item').forEach(el => {
+          el.classList.remove('active');
+        });
+      });
+
+      // Também detecta quando usa Ctrl+P ou Cmd+P
+      document.addEventListener('keydown', function(e) {
+        if ((e.ctrlKey || e.metaKey) && e.key === 'p') {
+          setTimeout(function() {
+            document.querySelectorAll('.accordion-item').forEach(el => {
+              el.classList.add('active');
+            });
+          }, 100);
+        }
+      });
+    </script>
+</body>
+
+</html>
